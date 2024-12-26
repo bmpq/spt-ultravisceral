@@ -1,13 +1,14 @@
-﻿using EFT;
+﻿using Comfort.Common;
+using EFT;
 using HarmonyLib;
 using SPT.Reflection.Patching;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using ultravisceral;
+using UnityEngine;
+using Systems.Effects;
+using DeferredDecals;
+using EFT.Ballistics;
+using static DeferredDecals.DeferredDecalRenderer;
+using AssetBundleLoader;
 
 namespace ultravisceral
 {
@@ -18,13 +19,66 @@ namespace ultravisceral
             return AccessTools.Method(typeof(Player), nameof(Player.ApplyDamageInfo));
         }
 
+        static SingleDecal[] decals;
+
+        static SingleDecal GetRandomDecal()
+        {
+            return decals[Random.Range(0, decals.Length)];
+        }
+
+        static void Init()
+        {
+            AssetBundle bundle = BundleLoader.LoadAssetBundle("ultrablood");
+            Texture[] textures = bundle.LoadAllAssets<Texture>();
+            decals = new SingleDecal[textures.Length];
+
+            for (int i = 0; i < textures.Length; i++)
+            {
+                SingleDecal decal = new SingleDecal();
+
+                Material mat = new Material(Shader.Find("Sprites/Default"));
+                mat.mainTexture = textures[i];
+
+                decal.DecalSize = new Vector2(1f, 1f) * Random.Range(0.4f, 0.9f);
+                decal.DecalMaterial = mat;
+                decal.DynamicDecalMaterial = decal.DecalMaterial;
+                decal.Init();
+
+                decals[i] = decal;
+            }
+        }
+
         [PatchPostfix]
         private static void PatchPostfix(ref Player __instance, DamageInfoStruct damageInfo, EBodyPart bodyPartType)
         {
             if (__instance.IsYourPlayer)
                 return;
 
+            if (decals == null)
+                Init();
+
             ParticleEffectManager.Instance.PlayBloodEffect(damageInfo.HitPoint, damageInfo.HitNormal);
+
+            if (Physics.Raycast(damageInfo.HitPoint, Vector3.down, out RaycastHit hit, 4f, 1 << 12))
+            {
+                if (hit.transform.TryGetComponent<BallisticCollider>(out BallisticCollider col))
+                {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        SingleDecal decal = GetRandomDecal();
+                        Singleton<Effects>.Instance.DeferredDecals.method_5(hit.point + new Vector3(Random.value - 0.5f, Random.value - 0.5f), Vector3.up, col, decal, decal.DynamicDecalMaterial, 0);
+                    }
+                }
+            }
+
+            if (Physics.Raycast(damageInfo.HitPoint, -damageInfo.HitNormal, out RaycastHit hit2, 4f, 1 << 12))
+            {
+                if (hit2.transform.TryGetComponent<BallisticCollider>(out BallisticCollider col))
+                {
+                    SingleDecal decal = GetRandomDecal();
+                    Singleton<Effects>.Instance.DeferredDecals.method_5(hit2.point, hit2.normal, col, decal, decal.DynamicDecalMaterial, 0.05f);
+                }
+            }
         }
     }
 }
