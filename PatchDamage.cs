@@ -63,10 +63,12 @@ namespace ultravisceral
             {
                 if (hit.transform.TryGetComponent<BallisticCollider>(out BallisticCollider col))
                 {
-                    for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < 3; i++)
                     {
                         SingleDecal decal = GetRandomDecal();
                         Singleton<Effects>.Instance.DeferredDecals.method_5(hit.point + new Vector3(Random.value - 0.5f, Random.value - 0.5f), Vector3.up, col, decal, decal.DynamicDecalMaterial, 0);
+
+                        Singleton<Effects>.Instance.EmitBleeding(hit.point, hit.normal);
                     }
                 }
             }

@@ -33,39 +33,40 @@ namespace ultravisceral
         public void PlayBloodEffect(Vector3 position, Vector3 normal)
         {
             ParticleSystem particleSystem = GetParticleSystem();
-
-            SetEffectBlood(particleSystem, 2);
-
+            SetEffectBlood(particleSystem, 2, true);
             Transform psTransform = particleSystem.transform;
             psTransform.position = position;
             psTransform.rotation = Quaternion.LookRotation(normal);
-
             particleSystem.gameObject.SetActive(true);
             particleSystem.Play();
-
             StartCoroutine(RecycleAfterFinish(particleSystem));
 
             particleSystem = GetParticleSystem();
-
-            SetEffectBlood(particleSystem, 10);
-
+            SetEffectBlood(particleSystem, 10, true);
             psTransform = particleSystem.transform;
             psTransform.position = position;
             psTransform.rotation = Quaternion.LookRotation(normal);
-
             particleSystem.gameObject.SetActive(true);
             particleSystem.Play();
+            StartCoroutine(RecycleAfterFinish(particleSystem));
 
+            particleSystem = GetParticleSystem();
+            SetEffectBlood(particleSystem, 3, false);
+            psTransform = particleSystem.transform;
+            psTransform.position = position;
+            psTransform.rotation = Quaternion.LookRotation(normal);
+            particleSystem.gameObject.SetActive(true);
+            particleSystem.Play();
             StartCoroutine(RecycleAfterFinish(particleSystem));
         }
 
-        private void SetEffectBlood(ParticleSystem ps, float startSpeed)
+        private void SetEffectBlood(ParticleSystem ps, float startSpeed, bool trailsEnabled)
         {
             var main = ps.main;
             main.loop = false;
-            main.startColor = Color.blue;
+            main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0, 0, 1), new Color(0.5f, 0, 0, 1));
             main.startSize = 0.1f;
-            main.startSpeed = new ParticleSystem.MinMaxCurve(startSpeed, startSpeed * 2f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(startSpeed, startSpeed * 3f);
             main.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 2f);
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.gravityModifier = 0.5f;
@@ -77,23 +78,23 @@ namespace ultravisceral
 
             var shape = ps.shape;
             shape.shapeType = ParticleSystemShapeType.Cone;
-            shape.angle = 40f;
-            shape.radius = 0.3f;
+            shape.angle = 90f;
+            shape.radius = 0.05f;
             shape.scale = Vector3.one;
 
             var limit = ps.limitVelocityOverLifetime;
             limit.enabled = false;
 
             var trails = ps.trails;
-            trails.enabled = true;
+            trails.enabled = trailsEnabled;
             trails.ratio = 1.0f;
             trails.mode = ParticleSystemTrailMode.PerParticle;
             trails.lifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
             trails.dieWithParticles = false;
 
             trails.textureMode = ParticleSystemTrailTextureMode.Stretch;
-            trails.widthOverTrail = new ParticleSystem.MinMaxCurve(2f, new AnimationCurve(new Keyframe(0, 1f), new Keyframe(1, 0)));
-            trails.colorOverTrail = new ParticleSystem.MinMaxGradient(Color.blue, new Color(0.5f, 0f, 0f, 0f));
+            trails.widthOverTrail = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(new Keyframe(0, 1f), new Keyframe(1, 0)));
+            trails.colorOverTrail = new ParticleSystem.MinMaxGradient(Color.red, new Color(0.5f, 0f, 0f, 0f));
         }
 
         ParticleSystem GetParticleSystem()
