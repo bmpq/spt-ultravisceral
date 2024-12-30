@@ -16,7 +16,7 @@ namespace ultravisceral
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(Player), nameof(Player.ApplyDamageInfo));
+            return AccessTools.Method(typeof(BodyPartCollider), nameof(BodyPartCollider.ApplyHit));
         }
 
         static SingleDecal[] decals;
@@ -49,9 +49,9 @@ namespace ultravisceral
         }
 
         [PatchPostfix]
-        private static void PatchPostfix(ref Player __instance, DamageInfoStruct damageInfo, EBodyPart bodyPartType)
+        private static void PatchPostfix(ref BodyPartCollider __instance, DamageInfoStruct damageInfo, ShotIdStruct shotID)
         {
-            if (__instance.IsYourPlayer)
+            if (__instance.Player.IsYourPlayer)
                 return;
 
             if (decals == null)
