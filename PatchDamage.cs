@@ -51,7 +51,7 @@ namespace ultravisceral
         [PatchPostfix]
         private static void PatchPostfix(ref BodyPartCollider __instance, DamageInfoStruct damageInfo, ShotIdStruct shotID)
         {
-            if (__instance.Player.IsYourPlayer)
+            if (__instance.Player != null && __instance.Player.IsYourPlayer)
                 return;
 
             if (decals == null)
