@@ -21,6 +21,8 @@ namespace ultravisceral
 
         static SingleDecal[] decals;
 
+        static AudioClip[] hitClips;
+
         static SingleDecal GetRandomDecal()
         {
             return decals[Random.Range(0, decals.Length)];
@@ -46,6 +48,8 @@ namespace ultravisceral
 
                 decals[i] = decal;
             }
+
+            hitClips = bundle.LoadAllAssets<AudioClip>();
         }
 
         [PatchPostfix]
@@ -58,6 +62,8 @@ namespace ultravisceral
                 Init();
 
             ParticleEffectManager.Instance.PlayBloodEffect(damageInfo.HitPoint, damageInfo.HitNormal);
+
+            Singleton<BetterAudio>.Instance.PlayAtPoint(damageInfo.HitPoint, hitClips[Random.Range(0, hitClips.Length)], BetterAudio.AudioSourceGroupType.Collisions, 100);
 
             if (Physics.Raycast(damageInfo.HitPoint, Vector3.down, out RaycastHit hit, 4f, 1 << 12))
             {
