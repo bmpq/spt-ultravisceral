@@ -35,10 +35,10 @@ namespace ultravisceral
             mat.mainTexture = texSheet;
             mat.color = new Color(0.5f, 0.5f, 0.5f, 1f);
 
-            decal.TileSheetRows = 1;
-            decal.TileSheetColumns = 10;
+            decal.TileSheetRows = 4;
+            decal.TileSheetColumns = 4;
 
-            decal.DecalSize = new Vector2(1f, 1f);
+            decal.DecalSize = new Vector2(3f, 3f); // has no effect?
             decal.DecalMaterial = mat;
             decal.DynamicDecalMaterial = decal.DecalMaterial;
             decal.DecalMaterialType = new MaterialType[] { MaterialType.None };
