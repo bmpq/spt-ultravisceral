@@ -34,6 +34,9 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
+    <Reference Include="VolumetricBloodFX">
+      <HintPath>$(SPTPath)\BepInEx\plugins\VolumetricBloodFX.dll</HintPath>
+    </Reference>
     
     <Reference Include="UnityEngine">
       <HintPath>$(SPTPath)\EscapeFromTarkov_Data\Managed\UnityEngine.dll</HintPath>
