@@ -19,38 +19,36 @@ namespace ultravisceral
             return AccessTools.Method(typeof(BodyPartCollider), nameof(BodyPartCollider.ApplyHit));
         }
 
-        static SingleDecal[] decals;
-
         static AudioClip[] hitClips;
 
-        static SingleDecal GetRandomDecal()
-        {
-            return decals[Random.Range(0, decals.Length)];
-        }
-
-        static void Init()
+        public static void Init()
         {
             AssetBundle bundle = BundleLoader.LoadAssetBundle("ultrablood");
-            Texture[] textures = bundle.LoadAllAssets<Texture>();
-            decals = new SingleDecal[textures.Length];
+            Texture texSheet = bundle.LoadAsset<Texture>("BloodSheet");
 
-            for (int i = 0; i < textures.Length; i++)
-            {
-                SingleDecal decal = new SingleDecal();
+            FieldInfo field4 = typeof(DeferredDecalRenderer).GetField("_genericDecal", BindingFlags.Instance | BindingFlags.NonPublic);
+            SingleDecal genericDecal = (SingleDecal)field4.GetValue(Singleton<Effects>.Instance.DeferredDecals);
 
-                Material mat = new Material(Shader.Find("Sprites/Default"));
-                mat.mainTexture = textures[i];
-                mat.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            SingleDecal decal = new SingleDecal();
 
-                decal.DecalSize = new Vector2(1f, 1f) * Random.Range(0.2f, 0.9f);
-                decal.DecalMaterial = mat;
-                decal.DynamicDecalMaterial = decal.DecalMaterial;
-                decal.Init();
+            Material mat = genericDecal.DecalMaterial;
+            mat.mainTexture = texSheet;
+            mat.color = new Color(0.5f, 0.5f, 0.5f, 1f);
 
-                decals[i] = decal;
-            }
+            decal.TileSheetRows = 1;
+            decal.TileSheetColumns = 10;
+
+            decal.DecalSize = new Vector2(1f, 1f);
+            decal.DecalMaterial = mat;
+            decal.DynamicDecalMaterial = decal.DecalMaterial;
+            decal.DecalMaterialType = new MaterialType[] { MaterialType.None };
+            decal.Init();
+
+            field4.SetValue(Singleton<Effects>.Instance.DeferredDecals, decal);
 
             hitClips = bundle.LoadAllAssets<AudioClip>();
+
+            InitBloodFX();
         }
 
         [PatchPostfix]
@@ -59,37 +57,41 @@ namespace ultravisceral
             if (__instance.Player != null && __instance.Player.IsYourPlayer)
                 return;
 
-            if (decals == null)
-                Init();
-
             ParticleEffectManager.Instance.PlayBloodEffect(damageInfo.HitPoint, damageInfo.HitNormal);
 
             SpawnBlood(damageInfo.HitPoint, damageInfo.Direction);
 
             Singleton<BetterAudio>.Instance.PlayAtPoint(damageInfo.HitPoint, hitClips[Random.Range(0, hitClips.Length)], BetterAudio.AudioSourceGroupType.Collisions, 100);
 
-            if (Physics.Raycast(damageInfo.HitPoint, Vector3.down, out RaycastHit hit, 4f, 1 << 12))
-            {
-                if (hit.transform.TryGetComponent<BallisticCollider>(out BallisticCollider col))
-                {
-                    for (int i = 0; i < 5; i++)
-                    {
-                        SingleDecal decal = GetRandomDecal();
-                        Singleton<Effects>.Instance.DeferredDecals.method_5(hit.point + new Vector3(Random.value - 0.5f * 2f, Random.value - 0.5f) * 2f, Vector3.up, col, decal, decal.DynamicDecalMaterial, 0);
+            Singleton<Effects>.Instance.EmitBloodOnEnvironment(damageInfo.HitPoint, damageInfo.HitNormal);
 
-                        Singleton<Effects>.Instance.EmitBleeding(hit.point, hit.normal);
-                    }
+            for (int i = 0; i < 12; i++)
+            {
+                if (Physics.Raycast(damageInfo.HitPoint, Random.onUnitSphere, out RaycastHit hit, 3f, 1 << 12))
+                {
+                    Singleton<Effects>.Instance.DeferredDecals.DrawDecal(hit, null);
                 }
             }
+        }
 
-            if (Physics.Raycast(damageInfo.HitPoint, -damageInfo.HitNormal, out RaycastHit hit2, 4f, 1 << 12))
-            {
-                if (hit2.transform.TryGetComponent<BallisticCollider>(out BallisticCollider col))
-                {
-                    SingleDecal decal = GetRandomDecal();
-                    Singleton<Effects>.Instance.DeferredDecals.method_5(hit2.point, hit2.normal, col, decal, decal.DynamicDecalMaterial, 0.05f);
-                }
-            }
+        static void InitBloodFX()
+        {
+            TextureDecalsPainter texDecals = Singleton<Effects>.Instance.TexDecals;
+            FieldInfo field = typeof(TextureDecalsPainter).GetField("_decalSize", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo field2 = typeof(TextureDecalsPainter).GetField("_bloodDecalTexture", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo field3 = typeof(TextureDecalsPainter).GetField("_vestDecalTexture", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo field4 = typeof(TextureDecalsPainter).GetField("_backDecalTexture", BindingFlags.Instance | BindingFlags.NonPublic);
+            Vector2 vector = new Vector2(0.25f, 0.35f);
+            field.SetValue(texDecals, vector);
+            object value = field2.GetValue(texDecals);
+            field3.SetValue(texDecals, value);
+            field4.SetValue(texDecals, value);
+            GameObject gameObject = BundleLoader.LoadAssetBundle("bloodsfx.bundle").LoadAllAssets<GameObject>()[1];
+            GameObject gameObject2 = BundleLoader.LoadAssetBundle("bloodfx.bundle").LoadAllAssets<GameObject>()[1];
+            gameObject2.transform.position = new Vector3(0f, -9999999f, 0f);
+            gameObject.transform.position = new Vector3(0f, -9999999f, 0f);
+            Object.Instantiate<GameObject>(gameObject);
+            Object.Instantiate<GameObject>(gameObject2);
         }
 
         private static void SpawnBlood(Vector3 point, Vector3 direction)
@@ -113,16 +115,18 @@ namespace ultravisceral
             gameObject4.transform.position = point;
             gameObject4.transform.localPosition = new Vector3(0f, 0f, 0f);
             gameObject4.transform.localRotation = new Quaternion(-0.1163f, 0.8234f, -0.1825f, -0.5246f);
-            gameObject4.GetComponent<ParticleSystem>().scalingMode = ParticleSystemScalingMode.Local;
+            var main = gameObject4.GetComponent<ParticleSystem>().main;
+            main.scalingMode = ParticleSystemScalingMode.Local;
             ParticleSystem[] componentsInChildren = gameObject4.GetComponentsInChildren<ParticleSystem>();
             for (int i = 0; i < componentsInChildren.Length; i++)
             {
-                componentsInChildren[i].scalingMode = ParticleSystemScalingMode.Hierarchy;
+                var m = componentsInChildren[i].main;
+                m.scalingMode = ParticleSystemScalingMode.Hierarchy;
             }
-            gameObject4.GetComponent<ParticleSystem>().loop = false;
-            gameObject4.GetComponent<ParticleSystem>().gravityModifier = 12f;
+            main.loop = false;
+            main.gravityModifier = 12f;
+            main.startColor = new Color(0.1509f, 0f, 0f, 1f);
             gameObject4.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-            gameObject4.GetComponent<ParticleSystem>().startColor = new Color(0.1509f, 0f, 0f, 1f);
         }
     }
 }
