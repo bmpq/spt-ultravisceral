@@ -67,7 +67,8 @@ namespace ultravisceral
 
             for (int i = 0; i < 12; i++)
             {
-                if (Physics.Raycast(damageInfo.HitPoint, Random.onUnitSphere, out RaycastHit hit, 3f, 1 << 12))
+                LayerMask layerMask = 1 << 12 | 1 << 11;
+                if (Physics.Raycast(damageInfo.HitPoint, Random.onUnitSphere, out RaycastHit hit, 3f, layerMask))
                 {
                     Singleton<Effects>.Instance.DeferredDecals.DrawDecal(hit, null);
                 }
