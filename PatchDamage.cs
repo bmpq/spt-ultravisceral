@@ -33,7 +33,7 @@ namespace ultravisceral
 
             Material mat = genericDecal.DecalMaterial;
             mat.mainTexture = texSheet;
-            mat.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            mat.color = new Color(0.1f, 0.1f, 0.1f, 1f);
 
             decal.TileSheetRows = 4;
             decal.TileSheetColumns = 4;
@@ -57,7 +57,7 @@ namespace ultravisceral
             if (__instance.Player != null && __instance.Player.IsYourPlayer)
                 return;
 
-            ParticleEffectManager.Instance.PlayBloodEffect(damageInfo.HitPoint, damageInfo.HitNormal);
+            ParticleEffectManager.Instance.PlayBloodEffect(damageInfo.HitPoint, damageInfo.HitNormal, Mathf.Max(damageInfo.Damage, 100));
 
             SpawnBlood(damageInfo.HitPoint, damageInfo.Direction);
 
