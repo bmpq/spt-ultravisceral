@@ -12,6 +12,7 @@ public class Plugin : BaseUnityPlugin
 
     public static ConfigEntry<float> BloodSplatterSize { get; set; }
     public static ConfigEntry<float> MinDistanceDecals { get; set; }
+    public static ConfigEntry<int> MaxStaticDecalAmount { get; set; }
 
     private void Start()
     {
@@ -19,6 +20,7 @@ public class Plugin : BaseUnityPlugin
 
         InitConfiguration();
 
+        new PatchMaxDecals().Enable();
         new OnGameStarted().Enable();
         new PatchDamage().Enable();
 
@@ -35,5 +37,6 @@ public class Plugin : BaseUnityPlugin
     {
         BloodSplatterSize = Config.Bind<float>("", "BloodFX Splatter Size", 1f, "");
         MinDistanceDecals = Config.Bind<float>("", "MinDistanceDecals", 0.5f, "");
+        MaxStaticDecalAmount = Config.Bind<int>("", "MaxStaticDecalAmount", 200, "");
     }
 }
