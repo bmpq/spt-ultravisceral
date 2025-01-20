@@ -11,6 +11,7 @@ public class Plugin : BaseUnityPlugin
     internal static new ManualLogSource Log;
 
     public static ConfigEntry<float> BloodSplatterSize { get; set; }
+    public static ConfigEntry<float> MinDistanceDecals { get; set; }
 
     private void Start()
     {
@@ -33,5 +34,6 @@ public class Plugin : BaseUnityPlugin
     private void InitConfiguration()
     {
         BloodSplatterSize = Config.Bind<float>("", "BloodFX Splatter Size", 1f, "");
+        MinDistanceDecals = Config.Bind<float>("", "MinDistanceDecals", 0.5f, "");
     }
 }

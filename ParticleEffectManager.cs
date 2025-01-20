@@ -46,7 +46,6 @@ namespace ultravisceral
             Transform psTransform = particleSystem.transform;
             psTransform.position = position;
             psTransform.rotation = Quaternion.LookRotation(-normal);
-            particleSystem.gameObject.SetActive(true);
             particleSystem.Play();
             StartCoroutine(RecycleAfterFinish(particleSystem));
 
@@ -55,7 +54,6 @@ namespace ultravisceral
             psTransform = particleSystem.transform;
             psTransform.position = position;
             psTransform.rotation = Quaternion.LookRotation(normal);
-            particleSystem.gameObject.SetActive(true);
             particleSystem.Play();
             StartCoroutine(RecycleAfterFinish(particleSystem));
 
@@ -64,7 +62,6 @@ namespace ultravisceral
             psTransform = particleSystem.transform;
             psTransform.position = position;
             psTransform.rotation = Quaternion.LookRotation(normal);
-            particleSystem.gameObject.SetActive(true);
             particleSystem.Play();
             StartCoroutine(RecycleAfterFinish(particleSystem));
         }
@@ -108,7 +105,9 @@ namespace ultravisceral
         {
             if (particlePool.Count > 0)
             {
-                return particlePool.Dequeue();
+                var ps = particlePool.Dequeue();
+                ps.gameObject.SetActive(true);
+                return ps;
             }
             else
             {
@@ -133,11 +132,11 @@ namespace ultravisceral
             var collision = ps.collision;
             collision.enabled = true;
             collision.type = ParticleSystemCollisionType.World;
-            collision.collidesWith = 1 << 18;
-            collision.bounce = 0.2f;
-            collision.dampen = 0.9f;
+            collision.collidesWith = 1 << 11 | 1 << 18;
+            collision.dampen = 1f;
             collision.lifetimeLoss = 1f;
             collision.sendCollisionMessages = true;
+            collision.enableDynamicColliders = false;
 
             ps.Stop();
 
@@ -150,8 +149,9 @@ namespace ultravisceral
         {
             yield return new WaitForSeconds(ps.main.startLifetime.constantMax);
 
-            ps.transform.SetParent(null);
             ps.Stop();
+            ps.gameObject.SetActive(false);
+            ps.transform.SetParent(null);
 
             particlePool.Enqueue(ps);
         }
