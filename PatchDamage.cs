@@ -64,15 +64,6 @@ namespace ultravisceral
             Singleton<BetterAudio>.Instance.PlayAtPoint(damageInfo.HitPoint, hitClips[Random.Range(0, hitClips.Length)], BetterAudio.AudioSourceGroupType.Collisions, 100);
 
             Singleton<Effects>.Instance.EmitBloodOnEnvironment(damageInfo.HitPoint, damageInfo.HitNormal);
-
-            for (int i = 0; i < 12; i++)
-            {
-                LayerMask layerMask = 1 << 12 | 1 << 11;
-                if (Physics.Raycast(damageInfo.HitPoint, Random.onUnitSphere, out RaycastHit hit, 3f, layerMask))
-                {
-                    Singleton<Effects>.Instance.DeferredDecals.DrawDecal(hit, null);
-                }
-            }
         }
 
         static void InitBloodFX()

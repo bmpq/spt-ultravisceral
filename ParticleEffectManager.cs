@@ -86,7 +86,7 @@ namespace ultravisceral
 
             var shape = ps.shape;
             shape.shapeType = ParticleSystemShapeType.Cone;
-            shape.angle = 90f;
+            shape.angle = 140f;
             shape.radius = 0.05f;
             shape.scale = Vector3.one;
 
@@ -136,8 +136,12 @@ namespace ultravisceral
             collision.collidesWith = 1 << 18;
             collision.bounce = 0.2f;
             collision.dampen = 0.9f;
+            collision.lifetimeLoss = 1f;
+            collision.sendCollisionMessages = true;
 
             ps.Stop();
+
+            bloodEffect.AddComponent<ParticleCollisionListener>();
 
             return ps;
         }
