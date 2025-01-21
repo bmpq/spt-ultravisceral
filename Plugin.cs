@@ -20,7 +20,7 @@ public class Plugin : BaseUnityPlugin
 
         InitConfiguration();
 
-        new PatchMaxDecals().Enable();
+        new PatchDeferredDecalRenderer().Enable();
         new OnGameStarted().Enable();
         new PatchDamage().Enable();
 

@@ -20,7 +20,7 @@ namespace ultravisceral
         [PatchPostfix]
         public static void PatchPostfix(GameWorld __instance)
         {
-            PatchDamage.Init();
+
         }
     }
 }

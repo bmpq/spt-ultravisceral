@@ -1,5 +1,8 @@
 ﻿using AssetBundleLoader;
+using Comfort.Common;
+using System;
 using System.Collections.Generic;
+using Systems.Effects;
 using UnityEngine;
 
 namespace ultravisceral
@@ -36,6 +39,14 @@ namespace ultravisceral
             for (int i = 0; i < PoolSize; i++)
             {
                 particlePool.Enqueue(CreateParticleSystem());
+            }
+        }
+
+        void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                Singleton<Effects>.Instance.DeferredDecals.Clear();
             }
         }
 
