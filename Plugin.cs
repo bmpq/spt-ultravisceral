@@ -29,7 +29,10 @@ public class Plugin : BaseUnityPlugin
 
     void PreloadBundles()
     {
+        BundleLoader.LoadAssetBundle("gorecaps.bundle");
+        BundleLoader.LoadAssetBundle("blood.bundle");
         BundleLoader.LoadAssetBundle("bloodfx.bundle");
+        BundleLoader.LoadAssetBundle("bloodsfx.bundle");
         BundleLoader.LoadAssetBundle("blood_particles.bundle");
     }
 
