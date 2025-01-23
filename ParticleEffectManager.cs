@@ -31,10 +31,17 @@ namespace ultravisceral
 
         private void Init()
         {
-            trailMaterial = new Material(Shader.Find("Sprites/Default"));
-            //new Material(BundleLoader.LoadAssetBundle("ultrablood").LoadAsset<Shader>("Additive"));
-            mainMaterial = new Material(Shader.Find("Sprites/Default"));
+            Shader particleShader = BundleLoader.LoadAssetBundle("ultrablood").LoadAsset<Shader>("ParticleDiffuse");
+
+            mainMaterial = new Material(particleShader);
             mainMaterial.mainTexture = BundleLoader.LoadAssetBundle("ultrablood").LoadAsset<Texture>("circle16");
+            mainMaterial.SetFloat("_Metallic", 0.6f);
+            mainMaterial.SetFloat("_Smoothness", 0.4f);
+
+            trailMaterial = new Material(particleShader);
+            trailMaterial.SetFloat("_Metallic", 0.6f);
+            trailMaterial.SetFloat("_Smoothness", 0.4f);
+            trailMaterial.color = new Color(1, 1, 1, 0.95f);
 
             for (int i = 0; i < PoolSize; i++)
             {
@@ -81,7 +88,7 @@ namespace ultravisceral
         {
             var main = ps.main;
             main.loop = false;
-            main.startColor = new ParticleSystem.MinMaxGradient(new Color(0.3f, 0, 0, 1), new Color(0.05f, 0, 0, 1));
+            main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0, 0, 1), new Color(0.5f, 0, 0, 0.9f));
             main.startSize = 0.07f;
             main.startSpeed = new ParticleSystem.MinMaxCurve(startSpeed, startSpeed * 3f);
             main.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 2f);
@@ -110,6 +117,7 @@ namespace ultravisceral
 
             trails.textureMode = ParticleSystemTrailTextureMode.Stretch;
             trails.inheritParticleColor = true;
+            trails.generateLightingData = true;
         }
 
         ParticleSystem GetParticleSystem()
@@ -138,7 +146,6 @@ namespace ultravisceral
 
             particleRenderer.material = mainMaterial;
             particleRenderer.trailMaterial = trailMaterial;
-            particleRenderer.trailMaterial.color = new Color(1,1,1,0.8f);
 
             var collision = ps.collision;
             collision.enabled = true;
