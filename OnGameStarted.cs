@@ -20,7 +20,26 @@ namespace ultravisceral
         [PatchPostfix]
         public static void PatchPostfix(GameWorld __instance)
         {
+            float dmg = 300f;
 
+            DamageInfoStruct prewarmDamage = new DamageInfoStruct
+            {
+                DamageType = dmg > 200f ? EDamageType.Explosion : EDamageType.Bullet,
+                Damage = dmg,
+                ArmorDamage = dmg,
+                StaminaBurnRate = dmg,
+                PenetrationPower = dmg,
+                Direction = UnityEngine.Random.onUnitSphere,
+                HitNormal = UnityEngine.Random.onUnitSphere,
+                HitPoint = new Vector3(0, 200, 0f),
+                MasterOrigin = Vector3.zero,
+                Player = __instance.GetAlivePlayerBridgeByProfileID(__instance.MainPlayer.ProfileId),
+                IsForwardHit = true,
+
+                BlockedBy = null,
+                DeflectedBy = null
+            };
+            PatchDamage.Play(prewarmDamage, ShotIdStruct.EMPTY_SHOT_ID);
         }
     }
 }

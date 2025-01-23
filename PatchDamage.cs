@@ -21,6 +21,11 @@ namespace ultravisceral
             if (__instance.Player != null && __instance.Player.IsYourPlayer)
                 return;
 
+            Play(damageInfo, shotID);
+        }
+
+        public static void Play(DamageInfoStruct damageInfo, ShotIdStruct shotID)
+        {
             ParticleEffectManager.Instance.PlayBloodEffect(damageInfo.HitPoint, damageInfo.HitNormal, Mathf.Max(damageInfo.Damage, 100));
 
             BFXManager.Instance.Play(damageInfo.HitPoint, damageInfo.Direction);
